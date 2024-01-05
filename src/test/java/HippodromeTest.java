@@ -13,9 +13,9 @@ class HippodromeTest {
     private static int counter = 0;
 
     @Test
-    void getHorses() {
+    void getHorses_ReturnsListOfHorses() {
         List<Horse> horses = Stream.generate(HippodromeTest::generateHorse)
-                .limit(30)
+                .limit(10)
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -25,20 +25,7 @@ class HippodromeTest {
     }
 
     @Test
-    void move() {
-        List<Horse> horses = Stream.generate(HippodromeTest::spyHorse)
-                .limit(50)
-                .distinct()
-                .collect(Collectors.toList());
-        Hippodrome hippodrome = new Hippodrome(horses);
-        hippodrome.move();
-        for (Horse horse : hippodrome.getHorses()) {
-            Mockito.verify(horse).move();
-        }
-    }
-
-    @Test
-    void getWinner() {
+    void getWinner_ReturnsWinner() {
         Horse winner = new Horse("Winner", 50);
         List<Horse> horses = Stream.generate(HippodromeTest::spyHorse)
                 .limit(4)
@@ -53,21 +40,40 @@ class HippodromeTest {
     }
 
     @Test
-    void constructorShouldThrowIllegalArgumentExceptionIfArgIsNull() {
-        Throwable exception = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    Hippodrome hippodrome = new Hippodrome(null);
-                });
-        assertEquals("Horses cannot be null.", exception.getMessage());
+    void move_InvokesMoveMethodForEachHorse() {
+        List<Horse> horses = Stream.generate(HippodromeTest::spyHorse)
+                .limit(50)
+                .distinct()
+                .collect(Collectors.toList());
+        Hippodrome hippodrome = new Hippodrome(horses);
+        hippodrome.move();
+        for (Horse horse : hippodrome.getHorses()) {
+            Mockito.verify(horse).move();
+        }
     }
 
     @Test
-    void constructorShouldThrowIllegalArgumentExceptionIfListIsEmpty() {
+    void constructor_ListIsNull_ThrowsIllegalArgumentException() {
+        String expectedMessage = "Horses cannot be null.";
+        List<Horse> horses = null;
+
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
-                    Hippodrome hippodrome = new Hippodrome(new ArrayList<>());
+                    new Hippodrome(horses);
                 });
-        assertEquals("Horses cannot be empty.", exception.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void constructor_ListIsEmpty_ThrowsIllegalArgumentException() {
+        String expectedMessage = "Horses cannot be empty.";
+        List<Horse> horses = new ArrayList<>();
+
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    new Hippodrome(horses);
+                });
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     private static Horse generateHorse() {

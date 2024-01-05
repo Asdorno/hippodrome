@@ -17,37 +17,38 @@ import static org.mockito.Mockito.mockStatic;
 @ExtendWith(MockitoExtension.class)
 class HorseTest {
 
-    String expectedName = "expected";
-    double expectedSpeed = 10.0;
-    double expectedDistance = 10.0;
+    private final String name = "name";
+    private final double speed = 10.0;
+    private final double distance = 10.0;
 
     @Spy
-    Horse mockHorse = new Horse(expectedName, expectedSpeed, expectedDistance);
+    Horse mockHorse = new Horse(name, speed, distance);
 
     @Test
-    void getName() {
-        assertEquals(expectedName, mockHorse.getName());
+    void getName_ReturnsCorrectdName() {
+        assertEquals(name, mockHorse.getName());
     }
 
     @Test
-    void getSpeed() {
-        assertEquals(expectedSpeed, mockHorse.getSpeed());
+    void getSpeed_ReturnsCorrectSpeed() {
+        assertEquals(speed, mockHorse.getSpeed());
     }
 
     @Test
-    void getDistance() {
-        assertEquals(expectedDistance, mockHorse.getDistance());
+    void getDistance_ReturnsCorrectDistance() {
+        assertEquals(distance, mockHorse.getDistance());
     }
 
     @Test
-    void getDistanceShouldReturnZeroWhenConstructorUsesTwoParams() {
+    void getDistance_UsedTwoParamsConstructor_ReturnsZero() {
         double expected = 0;
-        Horse horse = new Horse("name", 10.0);
+
+        Horse horse = new Horse(name, speed);
         assertEquals(expected, horse.getDistance());
     }
 
     @Test
-    void move() {
+    void move_InvokeGetRandomDoubleMethod() {
         try (MockedStatic<Horse> mockedStatic = mockStatic(Horse.class)) {
             mockHorse.move();
             mockedStatic.verify(() -> {
@@ -65,7 +66,7 @@ class HorseTest {
             "0.7, 17",
             "0.8, 18",
             "0.9, 19"})
-    void moveShouldVerifyAlgorithmOfReceivingDistance(double randomReturn, double expectedResult) {
+    void move_ChecksAlgorithmOfReceivingDistance(double randomReturn, double expectedResult) {
         try (MockedStatic<Horse> mockedStatic = mockStatic(Horse.class)) {
             mockedStatic.when(() -> Horse.getRandomDouble(anyDouble(), anyDouble())).thenReturn(randomReturn);
             mockHorse.move();
@@ -74,40 +75,48 @@ class HorseTest {
     }
 
     @Test
-    void constructorShouldThrowIllegalArgumentExceptionWhenFirstArgIsNull() {
+    void constructor_NameIsNull_ThrowsIllegalArgumentException() {
+        String expectedMessage = "Name cannot be null.";
+
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
-                    Horse horse = new Horse(null, 10.0);
+                    new Horse(null, speed);
                 });
-        assertEquals("Name cannot be null.", exception.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("argsProviderFactory")
-    void constructorShouldThrowIllegalArgumentExceptionWhenFirstArgIsEmpty(String arg) {
+    void constructor_NameIsEmpty_ThrowsIllegalArgumentException(String arg) {
+        String expectedMessage = "Name cannot be blank.";
+
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
-                    Horse horse = new Horse(arg, 10);
+                    new Horse(arg, speed);
                 });
-        assertEquals("Name cannot be blank.", exception.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void constructorShouldThrowIllegalArgumentExceptionWhenSecondArgIsNegative() {
+    void constructor_SpeedIsNegative_ThrowsIllegalArgumentException() {
+        String expectedMessage = "Speed cannot be negative.";
+
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
-                    Horse horse = new Horse("name", -10);
+                    new Horse(name, -speed);
                 });
-        assertEquals("Speed cannot be negative.", exception.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void constructorShouldThrowIllegalArgumentExceptionWhenThirdArgIsNegative() {
+    void constructor_DistanceIsNegative_ThrowsIllegalArgumentException() {
+        String expectedMessage = "Distance cannot be negative.";
+
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
-                    Horse horse = new Horse("name", 10, -10);
+                    new Horse(name, speed, -distance);
                 });
-        assertEquals("Distance cannot be negative.", exception.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     static Stream<String> argsProviderFactory() {
